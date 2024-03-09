@@ -37,10 +37,9 @@ class BaseModel:
         """
         returns a dictionary containing all keys/values of __dict__ of the instance
         """
-        return {
-            "__class__": self.__class__.__name__,
-            "id": self.id,
-            "created_at": self.created_at.isoformat(timespec='microseconds'),
-            "updated_at": self.updated_at.isoformat(timespec='microseconds'),
-            **self.__dict__,
-        }
+        dict = {**self.__dict__}
+        dict['__class__'] = type(self).__name__
+        dict['created_at'] = dict['created_at'].isoformat()
+        dict['updated_at'] = dict['updated_at'].isoformat()
+
+        return dict
