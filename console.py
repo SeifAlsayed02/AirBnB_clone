@@ -16,6 +16,7 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+from models import storage
 
 
 
@@ -56,20 +57,85 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """
-        Creates a new instance of BaseModel
+        Creates a new instance of class given
         """
-#         create: Creates a new instance of BaseModel, saves it (to the JSON file) and prints the id. Ex: $ create BaseModel
-# If the class name is missing, print ** class name missing ** (ex: $ create)
-# If the class name doesn’t exist, print ** class doesn't exist ** (ex: $ create MyModel)
-        obj = args.split()
-        if len(obj) < 1:
-            print("** class name missing **")
+        args_splitted = args.split()
+
+        if not err_prints(args_splitted):
+            return
         else:
-            if obj.__class__.__name__ not in CLASSES.keys():
+            obj = CLASSES[args_splitted[0]]()
+            obj.save()
+            print(obj.id)
+
+    def do_show(self, args):
+        """
+        Shows onstance with given id
+        """
+        args_splitted = args.split()
+        if not err_prints(args_splitted, is_id=True):
+            return
+        else:
+            objs = storage.all()
+            key_given = "{}.{}".format(args_splitted[0], args_splitted[1])
+            for key, value in objs.items():
+                if key_given == key:
+                    print(value)
+                    return
+            print("** no instance found **")
+
+
+    def do_destroy(self, args):
+        """
+        destroy certain instance
+        """
+        args_splitted = args.split()
+        if not err_prints(args_splitted, is_id=True):
+            return
+        else:
+            objs = storage.all()
+            key_given = "{}.{}".format(args_splitted[0], args_splitted[1])
+            for key, value in objs.items():
+                if key_given == key:
+                    del objs[key]
+                    storage.save()
+                    return
+            print("** no instance found **")
+
+    def do_all(self, args):
+        """
+        Shows all instances
+        """
+
+        args_splitted = args.split()
+        objs = storage.all()
+
+        if len(args_splitted) < 1:
+            print(["{}".format(str(value)) for key, value in objs.items()])
+            # print([obj.all() for obj in objs])
+
+        else:
+            if args_splitted[0] not in CLASSES.keys():
                 print("** class doesn't exist **")
             else:
-                obj.save()
-                print(obj.id)
+                print(["{}".format(str(value)) for key, value in objs.items() if value['__class__'] == args_splitted[0]])
+        
+
+
+
+def err_prints(args, is_id = False):
+
+        if len(args) < 1:
+            print("** class name missing **")
+            return False
+        if args[0] not in CLASSES.keys():
+            print("** class doesn't exist **")
+            return False
+        if len(args) < 2 and is_id:
+            print("** instance id missing **")
+            return False
+        return True
+
 
 
 
