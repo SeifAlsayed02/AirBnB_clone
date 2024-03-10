@@ -7,6 +7,7 @@ Module with the file storage class
 
 import os
 import json
+# from models.base_model import BaseModel
 
 
 class FileStorage:
@@ -31,7 +32,7 @@ class FileStorage:
 
         key_class_id = "{}.{}".format(obj.__class__.__name__, obj.id)
 
-        FileStorage.__objects[obj.__class__.__name__] = obj
+        FileStorage.__objects[key_class_id] = obj
 
     def save(self):
         """
