@@ -7,7 +7,8 @@ Module with the file storage class
 
 import os
 import json
-# from models.base_model import BaseModel
+from models.base_model import BaseModel
+from models.user import User
 
 
 class FileStorage:
@@ -32,17 +33,16 @@ class FileStorage:
 
         key_class_id = "{}.{}".format(obj.__class__.__name__, obj.id)
 
-        FileStorage.__objects[key_class_id] = obj
+        FileStorage.__objects[key_class_id] = obj.to_dict()
 
     def save(self):
         """
         serializes __objects to the JSON file (path: __file_path)
         """
         with open(FileStorage.__file_path, 'w') as f:
-            json.dump({key: value.to_dict() for key, value in FileStorage.__objects.items()}, f)
-
-
-
+            json.dump(
+                {key: value for key, value in FileStorage.__objects.items()},
+                f)
 
     def reload(self):
         """
@@ -55,5 +55,5 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 try:
                     FileStorage.__objects = json.load(f)
-                except:
+                except json.JSONDecodeError:
                     FileStorage.__objects = {}
